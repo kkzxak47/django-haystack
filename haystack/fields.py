@@ -2,6 +2,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import re
+import django
 
 from django.template import Context, loader
 from django.utils import datetime_safe, six
@@ -136,7 +137,10 @@ class SearchField(object):
             template_names = ['search/indexes/%s/%s_%s.txt' % (app_label, model_name, self.instance_name)]
 
         t = loader.select_template(template_names)
-        return t.render(Context({'object': obj}))
+        ctx = Context({'object': obj})
+        if django.VERSION >= (1, 8, 0):
+            ctx = ctx.flatten()
+        return t.render(ctx)
 
     def convert(self, value):
         """
